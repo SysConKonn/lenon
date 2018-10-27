@@ -2,10 +2,14 @@
 
 if [ "${1}" = "--help" -o "${1}" = "-h" -o -z "${1}" ]; then
 	echo "Useage :";
-	echo "$ lenon <problem> [student] [timelimit]";
-	echo 'Please make sure you are in the directory';
-	echo 'that has a file named "xxx.cdf"';
+	echo "$ lenon <problem> [student] [timelimit] [score per problem]";
+	echo '';
+	echo "Config file (~/.lenonrc) example:";
+	echo '    problem=lenon-test-problem';
+	echo '    student=CSYZ27';
+	echo '    time=0.1';
+	echo '    score=120';
 	exit;
 fi
 
-exec sh judge-main.sh $@ 2>/dev/null
+exec sh lenon-judge-main.sh $@ 2>/dev/null

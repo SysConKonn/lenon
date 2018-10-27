@@ -7,15 +7,24 @@ GREEN="\033[1;32m";
 YELLOW="\033[1;33m";
 BLUE="\033[1;34m";
 
-default_student="CSYZ26";
-default_time_limit="1000000000"; # 1s, 1e9ns
-
 MAX_RETEST_TIME=2; # if TLE
-TMPDIR=".judge_tmp_dir";
+TMPDIR=".lenon_tmp_dir";
+
+default_student="std";
+default_time_limit="1000000000"; # 1s, 1e9ns
+default_score_per_problem="100";
+
+# read configure
+cfg_problem=`grep "problem" ~/.lenonrc | cut -d '=' -f2`;
+cfg_student=`grep "student" ~/.lenonrc | cut -d '=' -f2`;
+cfg_time_limit=`grep "time" ~/.lenonrc | cut -d '=' -f2`;
+cfg_score_per_problem=`grep "score" ~/.lenonrc | cut -d '=' -f2`;
 
 # ============== problem  =========================
 if [ -n "${1}" ]; then
 	problem="${1}";
+elif [ -n "${cfg_problem}" ]; then
+	problem="${cfg_problem}";
 else
 	echo "Problem name required";
 	exit;
@@ -24,6 +33,8 @@ fi
 # ============ student =========================
 if [ -n "${2}" ]; then
 	student="${2}";
+elif [ -n "${cfg_student}" ]; then
+	student="${cfg_student}";
 else
 	student=${default_student};
 fi
@@ -31,14 +42,25 @@ fi
 # ============ time limit =======================
 if [ -n "${3}" ]; then
 	time_limit=`echo "${3}"|awk '{printf("%d", $1 * 1000000000)}'`;
+elif [ -n "${cfg_time_limit}" ]; then
+	time_limit=`echo "${cfg_time_limit}"|awk '{printf("%d", $1 * 1000000000)}'`;
 else
 	time_limit=${default_time_limit};
+fi
+
+# ============ score per problem =======================
+if [ -n "${4}" ]; then
+	score_per_problem="${4}";
+elif [ -n "${cfg_score_per_problem}" ]; then
+	score_per_problem="${cfg_score_per_problem}";
+else
+	score_per_problem=${default_score_per_problem};
 fi
 
 # ============ find data =========================
 while [ ! -d data ]; do
 	cd ../;
-	if [ -d proc ]; then
+	if [ "${PWD}" = '/' ]; then
 		echo "No such Problem : ${problem}";
 		exit;
 	fi
@@ -55,7 +77,14 @@ if [ ${data_count} -le 0 ]; then
 	exit;
 fi
 
-score_per_case=$((100 / ${data_count}));
+score_per_case=`expr "${score_per_problem}" '/' "${data_count}"`;
+
+# ============ clean tmp directory =======================
+if [ -d "${TMPDIR}" ]; then
+	rm -f "${TMPDIR}/*";
+else
+	mkdir "${TMPDIR}";
+fi
 
 # ============ init special judge =========================
 if [ -f "data/${problem}/checker.cpp" ]; then
@@ -70,11 +99,7 @@ else
 fi
 
 # ============ compile student program =========================
-if [ ! -d "${TMPDIR}" ]; then
-	mkdir "${TMPDIR}";
-fi
-
-g++ "source/${student}/${problem}.cpp" -o "${TMPDIR}/${problem}";
+g++ "source/${student}/${problem}.cpp" -o "${TMPDIR}/${problem}" 2>&1;
 if [ $? -ne 0 ]; then
 	echo -e "${YELLOW}" "CE" "${NONE}";
 	exit;
@@ -86,7 +111,7 @@ cd "${TMPDIR}";
 totscore=0;
 
 let data_count-=1;
-data="-1"; # easy to continue
+data="-1"; # easy to use `continue`
 
 echo "judge start";
 while [ "${data}" -lt "${data_count}" ]; do
