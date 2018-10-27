@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ "${1}" = "--help" -o "${1}" = "-h" -o -z "${1}" ]; then
+	echo "Useage :";
+	echo "$ lenon <problem> [student] [timelimit]";
+	echo 'Please make sure you are in the directory';
+	echo 'that has a file named "xxx.cdf"';
+	exit;
+fi
+
+exec sh judge-main.sh $@ 2>/dev/null
