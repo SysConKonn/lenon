@@ -113,7 +113,7 @@ totscore=0;
 let data_count-=1;
 data="-1"; # easy to use `continue`
 
-echo "judge start";
+echo "judge start : ${student} ${problem}";
 while [ "${data}" -lt "${data_count}" ]; do
 	let data+=1;
 
@@ -122,6 +122,7 @@ while [ "${data}" -lt "${data_count}" ]; do
 
 	score=0;
 	test_times=0;
+	time_spend=0;
 	is_TLE=1;
 
 	# Run
@@ -138,6 +139,10 @@ while [ "${data}" -lt "${data_count}" ]; do
 			fi
 		done
 
+		now_time=`date +%s%N`;
+		time_spend=`expr "${now_time}" '-' "${start_time}"`; # ns
+		time_spend=`echo "${time_spend}"|awk '{printf("%f", $1 / 1000000000.0)}'`;
+
 		kill -KILL ${lastpid} 1>/dev/null 2>/dev/null;
 		if [ $? -eq 0 ]; then
 			score=0;
@@ -153,7 +158,7 @@ while [ "${data}" -lt "${data_count}" ]; do
 
 	# TLE
 	if [ ${is_TLE} -eq 1 ]; then
-		echo -e "${BLUE}" "TLE\t" "${NONE}" "${score}";
+		echo -e "${BLUE}" "TLE\t" "${RED}" "${score}" "${NONE}" " N/A";
 		continue;
 	fi
 
@@ -179,7 +184,7 @@ while [ "${data}" -lt "${data_count}" ]; do
 	else
 		echo -ne "${RED}";
 	fi
-	echo -e "${score}" "${NONE}";
+	echo -e "${score}" "${NONE}" " ${time_spend}s";
 	let totscore+="${score}";
 done
 
