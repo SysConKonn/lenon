@@ -101,7 +101,7 @@ fi
 # ============ compile student program =========================
 g++ "source/${student}/${problem}.cpp" -o "${TMPDIR}/${problem}" 2>&1;
 if [ $? -ne 0 ]; then
-	echo -e "${YELLOW}" "CE" "${NONE}";
+	echo -e "${YELLOW}" "Compile Error" "${NONE}";
 	exit;
 fi
 
@@ -158,7 +158,7 @@ while [ "${data}" -lt "${data_count}" ]; do
 
 	# TLE
 	if [ ${is_TLE} -eq 1 ]; then
-		echo -e "${BLUE}" "TLE\t" "${RED}" "${score}" "${NONE}" " N/A";
+		echo -e "${BLUE}" "Time Limit Exceed\t" "${RED}" "${score}" "${NONE}" " N/A";
 		continue;
 	fi
 
@@ -171,10 +171,10 @@ while [ "${data}" -lt "${data_count}" ]; do
 		ln -sf "../data/${problem}/${problem}${data}.out" ./${problem}.ans;
 		diff -Z "${problem}.out" "${problem}.ans" 1>/dev/null 2>/dev/null;
 		if [ $? -ne 0 ]; then
-			echo -ne "${RED}" "WA\t" "${NONE}";
+			echo -ne "${RED}" "Wrong Answer\t" "${NONE}";
 			score=0;
 		else
-			echo -ne "${GREEN}" "AC\t" "${NONE}";
+			echo -ne "${GREEN}" "Accept\t" "${NONE}";
 			score=${score_per_case};
 		fi
 	fi
